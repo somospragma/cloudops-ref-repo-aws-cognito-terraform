@@ -30,6 +30,7 @@ resource "aws_cognito_user_pool_client" "client" {
   explicit_auth_flows          = each.value.explicit_auth_flows
   allowed_oauth_flows_user_pool_client = each.value.allowed_oauth_flows_user_pool_client
 
+  depends_on = [aws_cognito_identity_provider.identity]
 }
 
 resource "aws_cognito_user_pool_domain" "domain" {
