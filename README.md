@@ -99,6 +99,8 @@ module "cognito" {
           callback_urls                = ["xxxx"]
           logout_urls                  = ["xxxx"]
           supported_identity_providers = ["xxxx"]
+          explicit_auth_flows          = ["ADMIN_NO_SRP_AUTH", "USER_PASSWORD_AUTH"]
+          allowed_oauth_flows_user_pool_client = true
         }
         clienteMobile = {
           name                         = "xxxx"
@@ -108,6 +110,8 @@ module "cognito" {
           callback_urls                = ["xxxx"]
           logout_urls                  = []
           supported_identity_providers = []
+          explicit_auth_flows          = []
+          allowed_oauth_flows_user_pool_client = false
         }
       }
     }
@@ -179,6 +183,8 @@ object({
     callback_urls                = list(string), // Lista de URLs de callback.
     logout_urls                  = list(string), // Lista de URLs de logout.
     supported_identity_providers = optional(list(string), []) // (Opcional) Lista de proveedores federados soportados (ejemplo: ["Google", "Facebook"]).
+    explicit_auth_flows          = optional(list(string), []) // (Opcional) Flujos de autenticación explícitos (ejemplo: ["ADMIN_NO_SRP_AUTH", "USER_PASSWORD_AUTH"]).
+    allowed_oauth_flows_user_pool_client = optional(bool, false) // (Opcional) Habilita características OAuth 2.0. Debe ser true para usar callback_urls, logout_urls, allowed_oauth_scopes y allowed_oauth_flows.
   }))
   federated_identity_providers = optional(map(object({  // (Opcional) Configuración de proveedores de identidad federados.
     provider_type     = string,            // Tipo de proveedor (ejemplo: "Google" o "Facebook").

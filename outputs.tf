@@ -13,6 +13,11 @@ output "user_pool_client_ids" {
   value       = { for k, client in aws_cognito_user_pool_client.client : k => client.id }
 }
 
+output "user_pool_client_secrets" {
+  description = "Secreto de los clientes creados para cada User Pool"
+  value       = { for k, client in aws_cognito_user_pool_client.client : k => client.client_secret }
+}
+
 output "identity_provider_ids" {
   description = "IDs de los proveedores federados creados (si existen)"
   value       = { for k, idp in aws_cognito_identity_provider.identity : k => idp.id }

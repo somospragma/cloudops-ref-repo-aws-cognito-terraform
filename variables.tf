@@ -23,6 +23,8 @@ variable "user_pools" {
       callback_urls        = list(string)
       logout_urls          = list(string)
       supported_identity_providers = optional(list(string), [])
+      explicit_auth_flows  = optional(list(string), [])
+      allowed_oauth_flows_user_pool_client = optional(bool, false)
     }))
     federated_identity_providers = optional(map(object({
       provider_type    = string  # "Google", "Facebook", etc.

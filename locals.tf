@@ -11,6 +11,8 @@ locals {
         callback_urls        = client.callback_urls
         logout_urls          = client.logout_urls
         supported_identity_providers = client.supported_identity_providers
+        explicit_auth_flows  = client.explicit_auth_flows
+        allowed_oauth_flows_user_pool_client = client.allowed_oauth_flows_user_pool_client
       }
     ]
   ])

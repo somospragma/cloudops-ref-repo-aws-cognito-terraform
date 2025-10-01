@@ -27,6 +27,8 @@ resource "aws_cognito_user_pool_client" "client" {
   logout_urls          = each.value.logout_urls
 
   supported_identity_providers = each.value.supported_identity_providers
+  explicit_auth_flows          = each.value.explicit_auth_flows
+  allowed_oauth_flows_user_pool_client = each.value.allowed_oauth_flows_user_pool_client
 
 }
 
