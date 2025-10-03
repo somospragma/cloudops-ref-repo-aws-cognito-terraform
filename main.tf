@@ -1,4 +1,5 @@
 resource "aws_cognito_user_pool" "pool" {
+  provider = aws.project
   for_each = var.user_pools
 
   name                     = each.value.name
@@ -15,6 +16,7 @@ resource "aws_cognito_user_pool" "pool" {
 }
 
 resource "aws_cognito_user_pool_client" "client" {
+  provider = aws.project
   for_each = local.user_pool_clients_map
 
   name          = each.value.name
@@ -34,6 +36,7 @@ resource "aws_cognito_user_pool_client" "client" {
 }
 
 resource "aws_cognito_user_pool_domain" "domain" {
+  provider = aws.project
   for_each = var.user_pools
   domain       = each.value.domain
   user_pool_id = aws_cognito_user_pool.pool[each.key].id
@@ -42,6 +45,7 @@ resource "aws_cognito_user_pool_domain" "domain" {
 }
 
 resource "aws_cognito_identity_provider" "identity" {
+  provider = aws.project
   for_each = local.identity_providers_map
 
   provider_name     = each.value.provider_name
