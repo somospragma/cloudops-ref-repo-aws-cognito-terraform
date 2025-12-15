@@ -54,3 +54,20 @@ resource "aws_cognito_identity_provider" "identity" {
   attribute_mapping = each.value.attribute_mapping
   provider_details = each.value.provider_details
 }
+
+resource "aws_cognito_resource_server" "resource_server" {
+  provider = aws.project
+  for_each = local.resource_servers_map
+
+  identifier   = each.value.identifier
+  name         = each.value.name
+  user_pool_id = each.value.user_pool_id
+
+  dynamic "scope" {
+    for_each = each.value.scopes
+    content {
+      scope_name        = scope.value.scope_name
+      scope_description = scope.value.scope_description
+    }
+  }
+}

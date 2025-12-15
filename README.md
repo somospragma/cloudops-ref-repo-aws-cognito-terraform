@@ -12,6 +12,7 @@ Este módulo de Terraform permite la creación de múltiples **Cognito User Pool
 - **Configuración de Dominio:** Asigna a cada pool su propio dominio (utilizando el dominio predeterminado de Cognito o uno personalizado mediante un certificado ACM).
 - **Clientes Asociados:** Define múltiples clientes para cada pool, configurando flujos OAuth, scopes, URLs de callback y logout.
 - **Proveedores Federados Opcionales:** Habilita la autenticación a través de proveedores externos (por ejemplo, Google y Facebook) de forma opcional.
+- **Resource Servers:** Configura servidores de recursos con scopes personalizados para proteger APIs.
 
 ---
 
@@ -89,6 +90,24 @@ module "cognito" {
         }
       }
 
+      # Resource Servers (opcional)
+      resource_servers = {
+        api = {
+          identifier = "my-api"
+          name       = "My API"
+          scopes = {
+            read = {
+              scope_name        = "read"
+              scope_description = "Read access"
+            }
+            write = {
+              scope_name        = "write"
+              scope_description = "Write access"
+            }
+          }
+        }
+      }
+
       # Configuración de clientes para este pool
       clients = {
         clienteWeb = {
@@ -139,6 +158,7 @@ module "cognito" {
 | [aws_cognito_user_pool_client.client](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cognito_user_pool_client) | resource |
 | [aws_cognito_user_pool_domain.domain](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cognito_user_pool_domain) | resource |
 | [aws_cognito_identity_provider.identity](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cognito_identity_provider) | resource |
+| [aws_cognito_resource_server.resource_server](https://registry.terraform.io/providers/hashicorp/aws/latest/docs/resources/cognito_resource_server) | resource |
 
 ## 📌 Variables
 
@@ -194,6 +214,14 @@ object({
     authorize_scopes  = string,            // Scopes autorizados (ejemplo: "email profile").
     attribute_mapping = map(string)        // Mapeo de atributos entre el proveedor y Cognito (ejemplo: { email = "email", username = "sub" }).
   })), {})  // Valor por defecto: mapa vacío.
+  resource_servers = optional(map(object({   // (Opcional) Configuración de servidores de recursos para APIs.
+    identifier = string,                     // Identificador único del servidor de recursos.
+    name       = string,                     // Nombre descriptivo del servidor de recursos.
+    scopes = optional(map(object({           // (Opcional) Scopes personalizados para el servidor de recursos.
+      scope_name        = string,            // Nombre del scope.
+      scope_description = string             // Descripción del scope.
+    })), {})  // Valor por defecto: mapa vacío.
+  })), {})  // Valor por defecto: mapa vacío.
 })
 ```
 
@@ -205,4 +233,5 @@ object({
 | user_pool_domains        | Dominios configurados para cada User Pool.                                                                |
 | user_pool_client_ids     | IDs de los clientes (app clients) creados para cada User Pool.                                             |
 | identity_provider_ids    | IDs de los proveedores federados creados (si se han definido en la configuración del pool).                |
+| resource_server_ids      | IDs de los Resource Servers creados para cada User Pool.                                                   |
 

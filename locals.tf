@@ -37,4 +37,18 @@ locals {
   ])
 
   identity_providers_map = { for idp in local.user_pool_identity_providers : idp.id => idp }
+
+  user_pool_resource_servers = flatten([
+    for pool_key, pool in var.user_pools : [
+      for rs_key, rs in lookup(pool, "resource_servers", {}) : {
+        id           = "${pool_key}_${rs_key}"
+        user_pool_id = aws_cognito_user_pool.pool[pool_key].id
+        identifier   = rs.identifier
+        name         = rs.name
+        scopes       = rs.scopes
+      }
+    ]
+  ])
+
+  resource_servers_map = { for rs in local.user_pool_resource_servers : rs.id => rs }
 }

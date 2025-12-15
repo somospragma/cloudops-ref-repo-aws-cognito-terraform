@@ -34,6 +34,14 @@ variable "user_pools" {
       authorize_scopes = string  # Ejemplo: "email profile"
       attribute_mapping = map(string)
     })), {})  # Valor por defecto: mapa vacío
+    resource_servers = optional(map(object({
+      identifier = string
+      name       = string
+      scopes = optional(map(object({
+        scope_name        = string
+        scope_description = string
+      })), {})
+    })), {})
   }))
   default = {}
 }

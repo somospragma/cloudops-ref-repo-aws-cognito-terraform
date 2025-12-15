@@ -22,3 +22,8 @@ output "identity_provider_ids" {
   description = "IDs de los proveedores federados creados (si existen)"
   value       = { for k, idp in aws_cognito_identity_provider.identity : k => idp.id }
 }
+
+output "resource_server_ids" {
+  description = "IDs de los Resource Servers creados"
+  value       = { for k, rs in aws_cognito_resource_server.resource_server : k => rs.id }
+}
