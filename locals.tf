@@ -13,6 +13,10 @@ locals {
         supported_identity_providers = client.supported_identity_providers
         explicit_auth_flows  = client.explicit_auth_flows
         allowed_oauth_flows_user_pool_client = client.allowed_oauth_flows_user_pool_client
+        access_token_validity  = client.access_token_validity
+        id_token_validity      = client.id_token_validity
+        refresh_token_validity = client.refresh_token_validity
+        token_validity_units   = client.token_validity_units
       }
     ]
   ])
