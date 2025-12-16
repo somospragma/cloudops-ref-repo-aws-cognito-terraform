@@ -25,6 +25,14 @@ variable "user_pools" {
       supported_identity_providers = optional(list(string), [])
       explicit_auth_flows  = optional(list(string), [])
       allowed_oauth_flows_user_pool_client = optional(bool, false)
+      access_token_validity  = optional(number, 60)
+      id_token_validity      = optional(number, 60)
+      refresh_token_validity = optional(number, 30)
+      token_validity_units = optional(object({
+        access_token  = optional(string, "minutes")
+        id_token      = optional(string, "minutes")
+        refresh_token = optional(string, "days")
+      }), {})
     }))
     federated_identity_providers = optional(map(object({
       provider_type    = string  # "Google", "Facebook", etc.
