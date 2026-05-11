@@ -10,13 +10,16 @@ locals {
         allowed_oauth_scopes = client.allowed_oauth_scopes
         callback_urls        = client.callback_urls
         logout_urls          = client.logout_urls
-        supported_identity_providers = client.supported_identity_providers
-        explicit_auth_flows  = client.explicit_auth_flows
+        supported_identity_providers         = client.supported_identity_providers
+        explicit_auth_flows                  = client.explicit_auth_flows
         allowed_oauth_flows_user_pool_client = client.allowed_oauth_flows_user_pool_client
-        access_token_validity  = client.access_token_validity
-        id_token_validity      = client.id_token_validity
-        refresh_token_validity = client.refresh_token_validity
-        token_validity_units   = client.token_validity_units
+        prevent_user_existence_errors        = client.prevent_user_existence_errors
+        enable_token_revocation              = client.enable_token_revocation
+        auth_session_validity                = client.auth_session_validity
+        access_token_validity                = client.access_token_validity
+        id_token_validity                    = client.id_token_validity
+        refresh_token_validity               = client.refresh_token_validity
+        token_validity_units                 = client.token_validity_units
       }
     ]
   ])

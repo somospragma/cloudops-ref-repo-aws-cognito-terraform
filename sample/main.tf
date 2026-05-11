@@ -13,8 +13,8 @@ module "cognito" {
         require_symbols   = false
         require_uppercase = true
       }
-      domain                           = "pool1-app"
-      certificate_arn                  = ""  # Opcional, solo si se usa dominio personalizado
+      domain          = "pool1-app"
+      # certificate_arn solo se necesita si se usa un dominio personalizado
 
       # Proveedores federados (opcional). Si no se definen, no se crean.
       # federated_identity_providers = {
@@ -74,7 +74,6 @@ module "cognito" {
         require_uppercase = true
       }
       domain          = "pool2-app"
-      certificate_arn = ""
       clients = {
         clientC = {
           name                 = "cliente-admin"
