@@ -16,6 +16,7 @@ output "user_pool_client_ids" {
 output "user_pool_client_secrets" {
   description = "Secreto de los clientes creados para cada User Pool"
   value       = { for k, client in aws_cognito_user_pool_client.client : k => client.client_secret }
+  sensitive   = true
 }
 
 output "identity_provider_ids" {
