@@ -15,18 +15,26 @@ resource "aws_cognito_user_pool" "pool" {
   }
 
   dynamic "lambda_config" {
-    for_each = each.value.lambda_config != null ? [each.value.lambda_config] : []
+    for_each = (each.value.lambda_config != null || each.value.pre_token_generation_config != null) ? [true] : []
     content {
-      pre_sign_up                    = lambda_config.value.pre_sign_up
-      post_confirmation              = lambda_config.value.post_confirmation
-      pre_authentication             = lambda_config.value.pre_authentication
-      post_authentication            = lambda_config.value.post_authentication
-      custom_message                 = lambda_config.value.custom_message
-      define_auth_challenge          = lambda_config.value.define_auth_challenge
-      create_auth_challenge          = lambda_config.value.create_auth_challenge
-      verify_auth_challenge_response = lambda_config.value.verify_auth_challenge_response
-      pre_token_generation           = lambda_config.value.pre_token_generation
-      user_migration                 = lambda_config.value.user_migration
+      pre_sign_up                    = try(each.value.lambda_config.pre_sign_up, null)
+      post_confirmation              = try(each.value.lambda_config.post_confirmation, null)
+      pre_authentication             = try(each.value.lambda_config.pre_authentication, null)
+      post_authentication            = try(each.value.lambda_config.post_authentication, null)
+      custom_message                 = try(each.value.lambda_config.custom_message, null)
+      define_auth_challenge          = try(each.value.lambda_config.define_auth_challenge, null)
+      create_auth_challenge          = try(each.value.lambda_config.create_auth_challenge, null)
+      verify_auth_challenge_response = try(each.value.lambda_config.verify_auth_challenge_response, null)
+      pre_token_generation           = try(each.value.lambda_config.pre_token_generation, null)
+      user_migration                 = try(each.value.lambda_config.user_migration, null)
+
+      dynamic "pre_token_generation_config" {
+        for_each = each.value.pre_token_generation_config != null ? [each.value.pre_token_generation_config] : []
+        content {
+          lambda_arn     = pre_token_generation_config.value.lambda_arn
+          lambda_version = pre_token_generation_config.value.lambda_version
+        }
+      }
     }
   }
 }
@@ -82,7 +90,7 @@ resource "aws_cognito_identity_provider" "identity" {
   user_pool_id      = each.value.user_pool_id
   provider_type     = each.value.provider_type
   attribute_mapping = each.value.attribute_mapping
-  provider_details = each.value.provider_details
+  provider_details  = each.value.provider_details
 }
 
 resource "aws_cognito_resource_server" "resource_server" {

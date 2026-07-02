@@ -2,7 +2,7 @@
 
 ## Descripción:
 
-Este módulo de Terraform permite la creación de múltiples **Cognito User Pools** en AWS, incluyendo la configuración de dominios, clientes (app clients), proveedores de identidad federados (por ejemplo, Google y Facebook) y Lambda triggers de forma opcional. Con este módulo, podrás gestionar de forma centralizada la infraestructura de autenticación de tus aplicaciones.
+Este módulo de Terraform permite la creación de múltiples **Cognito User Pools** en AWS, incluyendo la configuración de dominios, clientes (app clients), proveedores de identidad federados (por ejemplo, Google y Facebook), Lambda triggers y personalización avanzada de tokens (access token customization) de forma opcional. Con este módulo, podrás gestionar de forma centralizada la infraestructura de autenticación de tus aplicaciones.
 
 ---
 
@@ -15,6 +15,7 @@ Este módulo de Terraform permite la creación de múltiples **Cognito User Pool
 - **Proveedores Federados Opcionales:** Habilita la autenticación a través de proveedores externos (por ejemplo, Google y Facebook) de forma opcional.
 - **Resource Servers:** Configura servidores de recursos con scopes personalizados para proteger APIs.
 - **Lambda Triggers:** Configura funciones Lambda para personalizar el flujo de autenticación (pre-registro, post-confirmación, migración de usuarios, etc.).
+- **Pre Token Generation V2/V3:** Soporte para personalización de access tokens mediante `pre_token_generation_config` con versiones V2_0 y V3_0 (requiere plan Essentials o Plus).
 
 ---
 
@@ -118,6 +119,13 @@ module "cognito" {
         custom_message    = "arn:aws:lambda:us-east-1:123456789:function:custom-msg"
       }
 
+      # Pre Token Generation V2_0 (opcional, requiere plan Essentials o Plus)
+      # Permite personalizar el access token (agregar claims, scopes, etc.)
+      pre_token_generation_config = {
+        lambda_arn     = "arn:aws:lambda:us-east-1:123456789:function:pre-token-gen"
+        lambda_version = "V2_0"  # V1_0 = solo ID token, V2_0 = ID + access, V3_0 = ID + access + M2M
+      }
+
       # Configuración de clientes para este pool
       clients = {
         clienteWeb = {
@@ -164,13 +172,13 @@ module "cognito" {
 | Name | Version |
 |------|---------|
 | <a name="requirement_terraform"></a> [terraform](#requirement\_terraform) | >= 0.13.1 |
-| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 4.31.0 |
+| <a name="requirement_aws"></a> [aws](#requirement\_aws) | >= 5.32.0 |
 
 ## Providers
 
 | Name | Version |
 |------|---------|
-| <a name="provider_aws.project"></a> [aws.project](#provider\_aws) | >= 4.31.0 |
+| <a name="provider_aws.project"></a> [aws.project](#provider\_aws) | >= 5.32.0 |
 
 ## Resources
 
@@ -264,9 +272,13 @@ object({
     define_auth_challenge          = optional(string, null) // ARN de Lambda para definir retos de autenticación custom.
     create_auth_challenge          = optional(string, null) // ARN de Lambda para crear retos de autenticación custom.
     verify_auth_challenge_response = optional(string, null) // ARN de Lambda para verificar respuestas a retos custom.
-    pre_token_generation           = optional(string, null) // ARN de Lambda ejecutada antes de generar tokens (permite modificar claims).
+    pre_token_generation           = optional(string, null) // ARN de Lambda pre-generación de token (V1_0 solamente, solo modifica ID token).
     user_migration                 = optional(string, null) // ARN de Lambda para migrar usuarios desde otro sistema.
   }), null)  // Valor por defecto: null (no se configura lambda_config).
+  pre_token_generation_config = optional(object({  // (Opcional) Configuración avanzada para personalización de access token.
+    lambda_arn     = string                        // ARN de la Lambda para pre-generación de token.
+    lambda_version = string                        // Versión del evento: "V1_0", "V2_0" o "V3_0".
+  }), null)  // Requiere plan Essentials o Plus. Valor por defecto: null.
 })
 ```
 
@@ -282,14 +294,46 @@ object({
 | `define_auth_challenge` | Define el flujo de retos custom | Autenticación multi-factor personalizada |
 | `create_auth_challenge` | Crea el reto de autenticación | Generar OTP, preguntas de seguridad |
 | `verify_auth_challenge_response` | Verifica la respuesta al reto | Validar OTP, verificar respuestas |
-| `pre_token_generation` | Modifica tokens antes de emitirlos | Agregar claims custom, roles dinámicos |
+| `pre_token_generation` | Modifica tokens antes de emitirlos (V1_0) | Agregar claims al ID token, roles dinámicos |
 | `user_migration` | Migra usuarios de otro sistema | Migración gradual desde legacy auth |
+
+### 🔹 Pre Token Generation Config (Access Token Customization)
+
+Para personalizar el **access token** (agregar claims, scopes, o suprimir claims), utiliza `pre_token_generation_config` en lugar de `lambda_config.pre_token_generation`. Este campo permite configurar versiones V2_0 y V3_0 del evento de pre-generación de token.
+
+| Versión | Plan requerido | Capacidades |
+|---------|---------------|-------------|
+| `V1_0` | Lite, Essentials, Plus | Solo personalización de ID token |
+| `V2_0` | Essentials, Plus | Personalización de ID token + access token |
+| `V3_0` | Essentials, Plus | Personalización de ID token + access token + M2M (client_credentials) |
+
+**Ejemplo de uso:**
+
+```hcl
+user_pools = {
+  my-pool = {
+    # ... configuración del pool ...
+
+    # Personalización de access token (V2_0)
+    pre_token_generation_config = {
+      lambda_arn     = "arn:aws:lambda:us-east-1:123456789012:function:pre-token-gen"
+      lambda_version = "V2_0"
+    }
+  }
+}
+```
+
+**Notas importantes:**
+- Si se definen ambos (`lambda_config.pre_token_generation` y `pre_token_generation_config`), el ARN debe ser idéntico en ambos campos (requisito del provider AWS).
+- Se recomienda usar únicamente `pre_token_generation_config` para nuevas implementaciones.
+- El User Pool debe tener el plan Essentials o Plus para usar V2_0 o V3_0.
 
 ### 📤 Outputs
 
 | **Nombre**          | **Descripción** | **Sensible** |
 |--------------------------|-----------------------------------------------------------------------------------------------------------|---|
 | user_pool_ids            | IDs de los Cognito User Pools creados. | No |
+| user_pool_arns           | ARNs de los Cognito User Pools creados. Útil para configurar `aws_lambda_permission` con triggers. | No |
 | user_pool_domains        | Dominios configurados para cada User Pool. | No |
 | user_pool_client_ids     | IDs de los clientes (app clients) creados para cada User Pool. | No |
 | user_pool_client_secrets | Secrets de los clientes creados para cada User Pool. | **Sí** |

@@ -28,3 +28,8 @@ output "resource_server_ids" {
   description = "IDs de los Resource Servers creados"
   value       = { for k, rs in aws_cognito_resource_server.resource_server : k => rs.id }
 }
+
+output "user_pool_arns" {
+  description = "ARNs de los Cognito User Pools creados"
+  value       = { for k, pool in aws_cognito_user_pool.pool : k => pool.arn }
+}
