@@ -84,6 +84,13 @@ module "cognito" {
           logout_urls          = ["https://admin.app.com/logout"]
         }
       }
+
+      # Pre Token Generation V2_0 - Personalización de access token
+      # Requiere plan Essentials o Plus en el User Pool
+      # pre_token_generation_config = {
+      #   lambda_arn     = "arn:aws:lambda:us-east-1:123456789012:function:pre-token-gen"
+      #   lambda_version = "V2_0"  # V1_0 = solo ID token, V2_0 = ID + access token, V3_0 = ID + access + M2M
+      # }
     }
   }
 }

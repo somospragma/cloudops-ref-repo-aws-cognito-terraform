@@ -13,15 +13,15 @@ variable "user_pools" {
       require_symbols   = bool
       require_uppercase = bool
     })
-    domain          = string                    # Dominio para el User Pool (único por pool)
-    certificate_arn = optional(string, null)    # ARN del certificado (si se usa dominio personalizado; null para dominio predeterminado)
+    domain          = string                 # Dominio para el User Pool (único por pool)
+    certificate_arn = optional(string, null) # ARN del certificado (si se usa dominio personalizado; null para dominio predeterminado)
     clients = map(object({
-      name                 = string
-      generate_secret      = bool
-      allowed_oauth_flows  = list(string)
-      allowed_oauth_scopes = list(string)
-      callback_urls        = list(string)
-      logout_urls          = list(string)
+      name                                 = string
+      generate_secret                      = bool
+      allowed_oauth_flows                  = list(string)
+      allowed_oauth_scopes                 = list(string)
+      callback_urls                        = list(string)
+      logout_urls                          = list(string)
       supported_identity_providers         = optional(list(string), ["COGNITO"])
       explicit_auth_flows                  = optional(list(string), [])
       allowed_oauth_flows_user_pool_client = optional(bool, true)
@@ -38,13 +38,13 @@ variable "user_pools" {
       }), {})
     }))
     federated_identity_providers = optional(map(object({
-      provider_type    = string  # "Google", "Facebook", etc.
-      provider_name    = string  # Nombre que se usará en Cognito (por ejemplo, "Google")
-      client_id        = string
-      client_secret    = string
-      authorize_scopes = string  # Ejemplo: "email profile"
+      provider_type     = string # "Google", "Facebook", etc.
+      provider_name     = string # Nombre que se usará en Cognito (por ejemplo, "Google")
+      client_id         = string
+      client_secret     = string
+      authorize_scopes  = string # Ejemplo: "email profile"
       attribute_mapping = map(string)
-    })), {})  # Valor por defecto: mapa vacío
+    })), {}) # Valor por defecto: mapa vacío
     resource_servers = optional(map(object({
       identifier = string
       name       = string
@@ -62,9 +62,13 @@ variable "user_pools" {
       define_auth_challenge          = optional(string, null) # ARN de Lambda para definir reto de auth
       create_auth_challenge          = optional(string, null) # ARN de Lambda para crear reto de auth
       verify_auth_challenge_response = optional(string, null) # ARN de Lambda para verificar respuesta de reto
-      pre_token_generation           = optional(string, null) # ARN de Lambda pre-generación de token
+      pre_token_generation           = optional(string, null) # ARN de Lambda pre-generación de token (V1_0 solamente)
       user_migration                 = optional(string, null) # ARN de Lambda para migración de usuarios
     }), null)
+    pre_token_generation_config = optional(object({
+      lambda_arn     = string # ARN de la Lambda para pre-generación de token
+      lambda_version = string # Versión del evento: "V1_0", "V2_0" o "V3_0"
+    }), null)                 # Configuración avanzada para personalizar access token (requiere plan Essentials o Plus)
   }))
   default = {}
 }
