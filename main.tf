@@ -14,6 +14,18 @@ resource "aws_cognito_user_pool" "pool" {
     require_uppercase = each.value.password_policy.require_uppercase
   }
 
+  dynamic "admin_create_user_config" {
+    for_each = each.value.admin_create_user_config != null ? [each.value.admin_create_user_config] : []
+    content {
+      allow_admin_create_user_only = admin_create_user_config.value.allow_admin_create_user_only
+    }
+  }
+  dynamic "user_attribute_update_settings" {
+    for_each = each.value.user_attribute_update_settings != null ? [each.value.user_attribute_update_settings] : []
+    content {
+      attributes_require_verification_before_update = user_attribute_update_settings.value.attributes_require_verification_before_update
+    }
+  }
   dynamic "lambda_config" {
     for_each = (each.value.lambda_config != null || each.value.pre_token_generation_config != null) ? [true] : []
     content {

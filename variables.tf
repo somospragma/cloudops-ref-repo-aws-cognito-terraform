@@ -53,6 +53,12 @@ variable "user_pools" {
         scope_description = string
       })), {})
     })), {})
+    admin_create_user_config = optional(object({
+      allow_admin_create_user_only = optional(bool, false) # true: solo administradores pueden crear usuarios (deshabilita auto-registro)
+    }), null)
+    user_attribute_update_settings = optional(object({
+      attributes_require_verification_before_update = list(string) # Atributos a verificar antes de actualizar: "email" y/o "phone_number"
+    }), null)
     lambda_config = optional(object({
       pre_sign_up                    = optional(string, null) # ARN de Lambda para pre-registro
       post_confirmation              = optional(string, null) # ARN de Lambda post-confirmación
