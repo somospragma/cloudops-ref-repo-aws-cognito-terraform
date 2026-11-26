@@ -263,6 +263,12 @@ object({
       scope_description = string             // Descripción del scope.
     })), {})
   })), {})
+  admin_create_user_config = optional(object({     // (Opcional) Configuración de creación de usuarios.
+    allow_admin_create_user_only = optional(bool, false) // true: solo administradores pueden crear usuarios (deshabilita auto-registro).
+  }), null)  // Valor por defecto: null (se usa el default de AWS, auto-registro permitido).
+  user_attribute_update_settings = optional(object({ // (Opcional) Verificación previa a la actualización de atributos.
+    attributes_require_verification_before_update = list(string) // "email" y/o "phone_number"; deben estar en auto_verified_attributes.
+  }), null)  // Valor por defecto: null (no se configura).
   lambda_config = optional(object({          // (Opcional) Lambda triggers para personalizar el flujo de autenticación.
     pre_sign_up                    = optional(string, null) // ARN de Lambda ejecutada antes del registro.
     post_confirmation              = optional(string, null) // ARN de Lambda ejecutada después de la confirmación.
